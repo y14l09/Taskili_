@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find a Task</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #fff;
+      color: #111;
+    }
+
+    .topbar {
+      background: #234aa8;
+      height: 152px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+    }
+
+    .topbar h1 {
+      color: #fff;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .search-box {
+      width: 540px;
+      max-width: calc(100vw - 40px);
+      height: 42px;
+      border: none;
+      border-radius: 999px;
+      padding: 0 24px;
+      outline: none;
+      background: #f5f5f5;
+      font-size: 15px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: calc(100vh - 152px);
+    }
+
+    .sidebar {
+      border-right: 1px solid #e3e3e3;
+      padding: 26px 18px;
+      background: #fff;
+    }
+
+    .sidebar h2 {
+      color: #244a9d;
+      font-size: 18px;
+      margin-bottom: 22px;
+      font-weight: 700;
+    }
+
+    .filter {
+      margin-bottom: 24px;
+    }
+
+    .filter label {
+      display: block;
+      font-size: 13px;
+      color: #8a8a8a;
+      margin-bottom: 8px;
+    }
+
+    .filter input {
+      width: 100%;
+      height: 21px;
+      border: none;
+      background: #e5e5e5;
+      padding: 0 10px;
+      font-size: 12px;
+      color: #333;
+      outline: none;
+      cursor: text;
+    }
+
+    .content {
+      background: #fff;
+    }
+
+    .task {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      padding: 28px 30px 24px 30px;
+      border-bottom: 2px solid #d8d8d8;
+      min-height: 178px;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+
+    .task:hover {
+      background: #fafafa;
+    }
+
+    .task-left {
+      padding-right: 24px;
+    }
+
+    .task-right {
+      text-align: right;
+      color: #a5a5a5;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-left: 20px;
+    }
+
+    .category {
+      font-size: 16px;
+      color: #a6a6a6;
+      margin-bottom: 28px;
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 22px;
+      color: #111;
+    }
+
+    .desc {
+      font-size: 15px;
+      line-height: 1.55;
+      color: #444;
+      max-width: 670px;
+      margin-bottom: 24px;
+    }
+
+    .location {
+      font-size: 15px;
+      color: #777;
+    }
+
+    .price-label {
+      color: #244a9d;
+      font-size: 16px;
+      font-weight: 700;
+      margin-top: 48px;
+      margin-bottom: 18px;
+    }
+
+    .price {
+      font-size: 16px;
+      color: #222;
+      font-weight: 500;
+    }
+
+    .task[hidden] {
+      display: none;
+    }
+
+    .clickable {
+      cursor: pointer;
+    }
+
+    .task-label {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .task-label:focus-visible,
+    .title:focus-visible,
+    .price-label:focus-visible,
+    .apply-btn:focus-visible,
+    .cancel-btn:focus-visible,
+    .clear-btn:focus-visible {
+      outline: 3px solid rgba(35, 74, 168, 0.35);
+      outline-offset: 3px;
+    }
+
+    .clear-btn {
+      margin-top: 10px;
+      border: none;
+      background: #234aa8;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      display: none;
+    }
+
+    .clear-btn.show {
+      display: inline-block;
+    }
+
+    .status-badge {
+      display: inline-block;
+      margin-left: 10px;
+      font-size: 12px;
+      color: #234aa8;
+      font-weight: 700;
+    }
+
+    .applied {
+      border-left: 4px solid #234aa8;
+      background: #f7faff;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid #e3e3e3;
+      }
+
+      .task {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .task-right {
+        text-align: left;
+        align-items: flex-start;
+      }
+
+      .price-label {
+        margin-top: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <h1>Find a Task</h1>
+    <input id="searchInput" class="search-box" type="text" placeholder="What are you looking for ?" />
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Filter by</h2>
+
+      <div class="filter">
+        <label>Price</label>
+        <input id="priceFilter" type="text" placeholder="00 DA" />
+      </div>
+
+      <div class="filter">
+        <label>City</label>
+        <input id="cityFilter" type="text" placeholder="Alger ." />
+      </div>
+
+      <div class="filter">
+        <label>Commune</label>
+        <input id="communeFilter" type="text" placeholder="Hydra ." />
+      </div>
+
+      <div class="filter">
+        <label>Category</label>
+        <input id="categoryFilter" type="text" placeholder="Education ." />
+      </div>
+
+      <div class="filter">
+        <label>Date</label>
+        <input id="dateFilter" type="text" placeholder="xx/xx/xxxx" />
+      </div>
+
+      <button id="clearFilters" class="clear-btn">Clear filters</button>
+    </aside>
+
+    <section class="content" id="tasks"></section>
+  </main>
+
+  <script>
+    const tasks = [
+      {
+        id: 1,
+        category: "Health Care",
+        title: "Looking for a nurse",
+        desc: "I have a sick mother at home and i am looking for a nurse to come and check on her health every Sunday for a month until she get well .",
+        location: "Alger , Hydra .",
+        price: "3000 DA / session",
+        city: "alger",
+        commune: "hydra",
+        date: "04/19/2026",
+        searchText: "looking for a nurse health care alger hydra 3000 da",
+        full: "Need a nurse for home visits every Sunday for one month."
+      },
+      {
+        id: 2,
+        category: "Education",
+        title: "Looking for a teacher",
+        desc: "I am looking for a teacher to teach mathematics to my 10 years old child , he’s a little bit weak in this module and needs some support .",
+        location: "Mostaganem , Kharouba.",
+        price: "1500 DA / session",
+        city: "mostaganem",
+        commune: "kharouba",
+        date: "04/18/2026",
+        searchText: "looking for a teacher education mostaganem kharouba 1500 da",
+        full: "Need a math teacher for a 10-year-old child."
+      },
+      {
+        id: 3,
+        category: "House",
+        title: "Looking for a plumber",
+        desc: "I urgently looking for a plumber , there’s something wrong with my sink it’s been two days , the water is going everywhere in the kitchen .",
+        location: "Medea , Ouamri .",
+        price: "1000 DA / session",
+        city: "medea",
+        commune: "ouamri",
+        date: "04/17/2026",
+        searchText: "looking for a plumber house medea ouamri 1000 da",
+        full: "Need urgent plumbing help for a kitchen sink leak."
+      }
+    ];
+
+    const container = document.getElementById("tasks");
+    const searchInput = document.getElementById("searchInput");
+    const priceFilter = document.getElementById("priceFilter");
+    const cityFilter = document.getElementById("cityFilter");
+    const communeFilter = document.getElementById("communeFilter");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const dateFilter = document.getElementById("dateFilter");
+    const clearBtn = document.getElementById("clearFilters");
+
+    const appliedTasks = JSON.parse(localStorage.getItem("appliedTasks") || "[]");
+
+    function normalize(v) {
+      return (v || "").toLowerCase().trim();
+    }
+
+    function saveApplied() {
+      localStorage.setItem("appliedTasks", JSON.stringify(appliedTasks));
+    }
+
+    function renderList() {
+      container.innerHTML = tasks.map((task, index) => {
+        const applied = appliedTasks.includes(task.id);
+        return `
+          <article class="task ${applied ? "applied" : ""}" data-index="${index}" tabindex="0" role="button" aria-label="Open ${task.title}">
+            <div class="task-left">
+              <div class="category">${task.category}</div>
+              <div class="title">${task.title}${applied ? '<span class="status-badge">Applied</span>' : ''}</div>
+              <div class="desc">${task.desc}</div>
+              <div class="location">${task.location}</div>
+            </div>
+            <div class="task-right">
+              <div class="category">${task.category}</div>
+              <div>
+                <div class="price-label">The Price</div>
+                <div class="price">${task.price}</div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".task").forEach(card => {
+        const index = Number(card.dataset.index);
+        const task = tasks[index];
+        card.addEventListener("click", () => openTask(task.id));
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openTask(task.id);
+          }
+        });
+      });
+    }
+
+    function applyFilters() {
+      const q = normalize(searchInput.value);
+      const price = normalize(priceFilter.value);
+      const city = normalize(cityFilter.value);
+      const commune = normalize(communeFilter.value);
+      const category = normalize(categoryFilter.value);
+      const date = normalize(dateFilter.value);
+
+      document.querySelectorAll(".task").forEach((el, i) => {
+        const t = tasks[i];
+        const matches =
+          (!q || t.searchText.includes(q) || t.title.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q)) &&
+          (!price || t.price.toLowerCase().includes(price)) &&
+          (!city || t.city.includes(city)) &&
+          (!commune || t.commune.includes(commune)) &&
+          (!category || t.category.toLowerCase().includes(category)) &&
+          (!date || t.date.toLowerCase().includes(date));
+
+        el.hidden = !matches;
+      });
+
+      const anyActive = [q, price, city, commune, category, date].some(Boolean);
+      clearBtn.classList.toggle("show", anyActive);
+    }
+
+    function openTask(id) {
+      location.href = `task.html?id=${id}`;
+    }
+
+    [searchInput, priceFilter, cityFilter, communeFilter, categoryFilter, dateFilter].forEach(el => {
+      el.addEventListener("input", applyFilters);
+    });
+
+    clearBtn.addEventListener("click", () => {
+      [searchInput, priceFilter, cityFilter, communeFilter, categoryFilter, dateFilter].forEach(el => el.value = "");
+      applyFilters();
+    });
+
+    renderList();
+    applyFilters();
+  </script>
+</body>
+</html>
