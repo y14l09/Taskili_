@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
   <title>Find a Task</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: Arial, Helvetica, sans-serif;
     }
 
     body {
@@ -24,7 +26,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
     }
 
     .topbar h1 {
@@ -34,7 +36,7 @@
       margin-bottom: 18px;
     }
 
-    .search-box {
+    .search-input {
       width: 540px;
       max-width: calc(100vw - 40px);
       height: 42px;
@@ -48,44 +50,56 @@
 
     .layout {
       display: grid;
-      grid-template-columns: 250px 1fr;
+      grid-template-columns: 280px 1fr;
+      gap: 40px;
+      padding: 40px 8% 80px;
       min-height: calc(100vh - 152px);
     }
 
     .sidebar {
-      border-right: 1px solid #e3e3e3;
-      padding: 26px 18px;
-      background: #fff;
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
+        border: 1px solid #f1f1f1;
+        height: fit-content;
     }
 
-    .sidebar h2 {
-      color: #244a9d;
-      font-size: 18px;
-      margin-bottom: 22px;
-      font-weight: 700;
+    .sidebar h3 {
+        color: var(--dark-blue);
+        margin-bottom: 25px;
+        font-size: 20px;
+        border-bottom: 2px solid #edf2ff;
+        padding-bottom: 15px;
     }
 
-    .filter {
-      margin-bottom: 24px;
+    .filter-group {
+        margin-bottom: 25px;
     }
 
-    .filter label {
-      display: block;
-      font-size: 13px;
-      color: #8a8a8a;
-      margin-bottom: 8px;
+    .filter-group label {
+        display: block;
+        font-weight: 500;
+        color: var(--dark-blue);
+        margin-bottom: 10px;
+        font-size: 15px;
     }
 
-    .filter input {
-      width: 100%;
-      height: 21px;
-      border: none;
-      background: #e5e5e5;
-      padding: 0 10px;
-      font-size: 12px;
-      color: #333;
-      outline: none;
-      cursor: text;
+    .filter-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        outline: none;
+        color: var(--text-gray);
+        font-size: 14px;
+        background-color: #f9fafb;
+        transition: var(--transition);
+    }
+
+    .filter-group input:focus {
+        border-color: var(--primary-blue);
+        background-color: white;
     }
 
     .content {
@@ -185,19 +199,24 @@
     }
 
     .clear-btn {
-      margin-top: 10px;
-      border: none;
-      background: #234aa8;
-      color: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 13px;
-      display: none;
+        width: 100%;
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: none;
+    }
+
+    .clear-btn:hover {
+        background: #334ecc;
     }
 
     .clear-btn.show {
-      display: inline-block;
+        display: block;
     }
 
     .status-badge {
@@ -216,11 +235,7 @@
     @media (max-width: 900px) {
       .layout {
         grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        border-right: none;
-        border-bottom: 1px solid #e3e3e3;
+        padding: 20px 5%;
       }
 
       .task {
@@ -239,37 +254,52 @@
     }
   </style>
 </head>
+
 <body>
+  <nav>
+    <a href="index.html"><img src="assets/Pasted image.png" alt="TASKILI" class="logo-img" style="height: 40px;"></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="find.html" style="color: var(--primary-blue); font-weight: 600;">Find work</a></li>
+      <li><a href="findfreelacer.html" class="dim">Find Freelancers</a></li>
+      <li><a href="#" class="dim">Log In</a></li>
+      <li><a href="#" class="dim">Sign Up</a></li>
+    </ul>
+    <a href="postform.html" class="btn-post">Post a project</a>
+  </nav>
   <header class="topbar">
     <h1>Find a Task</h1>
-    <input id="searchInput" class="search-box" type="text" placeholder="What are you looking for ?" />
+    <input id="searchInput" class="search-input" type="text" placeholder="What are you looking for ?" />
   </header>
 
   <main class="layout">
     <aside class="sidebar">
-      <h2>Filter by</h2>
+      <h3>Filters</h3>
 
-      <div class="filter">
-        <label>Price</label>
-        <input id="priceFilter" type="text" placeholder="00 DA" />
+      <div class="filter-group">
+        <label>Price (DA)</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="number" id="minPriceFilter" placeholder="Min" min="0">
+          <input type="number" id="maxPriceFilter" placeholder="Max" min="0">
+        </div>
       </div>
 
-      <div class="filter">
+      <div class="filter-group">
         <label>City</label>
-        <input id="cityFilter" type="text" placeholder="Alger ." />
+        <input id="cityFilter" type="text" placeholder="Alger" />
       </div>
 
-      <div class="filter">
+      <div class="filter-group">
         <label>Commune</label>
-        <input id="communeFilter" type="text" placeholder="Hydra ." />
+        <input id="communeFilter" type="text" placeholder="Hydra" />
       </div>
 
-      <div class="filter">
+      <div class="filter-group">
         <label>Category</label>
-        <input id="categoryFilter" type="text" placeholder="Education ." />
+        <input id="categoryFilter" type="text" placeholder="Education" />
       </div>
 
-      <div class="filter">
+      <div class="filter-group">
         <label>Date</label>
         <input id="dateFilter" type="text" placeholder="xx/xx/xxxx" />
       </div>
@@ -325,7 +355,8 @@
 
     const container = document.getElementById("tasks");
     const searchInput = document.getElementById("searchInput");
-    const priceFilter = document.getElementById("priceFilter");
+    const minPriceFilter = document.getElementById("minPriceFilter");
+    const maxPriceFilter = document.getElementById("maxPriceFilter");
     const cityFilter = document.getElementById("cityFilter");
     const communeFilter = document.getElementById("communeFilter");
     const categoryFilter = document.getElementById("categoryFilter");
@@ -379,7 +410,8 @@
 
     function applyFilters() {
       const q = normalize(searchInput.value);
-      const price = normalize(priceFilter.value);
+      const minPrice = parseInt(minPriceFilter.value) || 0;
+      const maxPrice = parseInt(maxPriceFilter.value) || Infinity;
       const city = normalize(cityFilter.value);
       const commune = normalize(communeFilter.value);
       const category = normalize(categoryFilter.value);
@@ -387,9 +419,10 @@
 
       document.querySelectorAll(".task").forEach((el, i) => {
         const t = tasks[i];
+        const taskPrice = parseInt(t.price.replace(/\D/g, '')) || 0;
         const matches =
           (!q || t.searchText.includes(q) || t.title.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q)) &&
-          (!price || t.price.toLowerCase().includes(price)) &&
+          (taskPrice >= minPrice && taskPrice <= maxPrice) &&
           (!city || t.city.includes(city)) &&
           (!commune || t.commune.includes(commune)) &&
           (!category || t.category.toLowerCase().includes(category)) &&
@@ -398,7 +431,7 @@
         el.hidden = !matches;
       });
 
-      const anyActive = [q, price, city, commune, category, date].some(Boolean);
+      const anyActive = [q, minPrice > 0, maxPrice !== Infinity, city, commune, category, date].some(Boolean);
       clearBtn.classList.toggle("show", anyActive);
     }
 
@@ -406,12 +439,12 @@
       location.href = `task.html?id=${id}`;
     }
 
-    [searchInput, priceFilter, cityFilter, communeFilter, categoryFilter, dateFilter].forEach(el => {
+    [searchInput, minPriceFilter, maxPriceFilter, cityFilter, communeFilter, categoryFilter, dateFilter].forEach(el => {
       el.addEventListener("input", applyFilters);
     });
 
     clearBtn.addEventListener("click", () => {
-      [searchInput, priceFilter, cityFilter, communeFilter, categoryFilter, dateFilter].forEach(el => el.value = "");
+      [searchInput, minPriceFilter, maxPriceFilter, cityFilter, communeFilter, categoryFilter, dateFilter].forEach(el => el.value = "");
       applyFilters();
     });
 
@@ -419,4 +452,5 @@
     applyFilters();
   </script>
 </body>
+
 </html>
