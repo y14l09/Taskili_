@@ -278,6 +278,26 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .star-rate {
+            transition: transform 0.2s;
+        }
+
+        .star-rate:hover {
+            transform: scale(1.2);
+        }
     </style>
 </head>
 
@@ -545,9 +565,9 @@
                         ${freelancer.skills.map(skill => `<span class="tag">${skill}</span>`).join('')}
                     </div>
 
-                    <div class="actions">
+                    <div class="actions" id="actions-${freelancer.id}">
                         <a href="#" class="btn-view">View Profile</a>
-                        <a href="postform.html" class="btn-hire">Hire Me</a>
+                        <button class="btn-hire" style="font-family: inherit;" onclick="hireFreelancer(${freelancer.id})">Hire Me</button>
                     </div>
                 </div>
             `).join('');
@@ -583,6 +603,95 @@
             if (e.key === "Enter") applyFilters();
         });
         document.getElementById("applyFiltersBtn").addEventListener("click", applyFilters);
+
+        function hireFreelancer(id) {
+            const actionsDiv = document.getElementById(`actions-${id}`);
+            actionsDiv.innerHTML = `
+                <div style="width: 100%; text-align: center; animation: fadeIn 0.3s ease;">
+                    <p style="color: #28a745; font-weight: 600; margin-bottom: 10px; font-size: 14px;">
+                        <i class="fas fa-check-circle"></i> Successfully hired!
+                    </p>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-view" style="font-family: inherit; border-color: #dc3545; color: #dc3545;" onclick="cancelHire(${id})">Cancel</button>
+                        <button class="btn-hire" style="font-family: inherit;" onclick="completeTask(${id})">Mark Completed</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function completeTask(id) {
+            const actionsDiv = document.getElementById(`actions-${id}`);
+            actionsDiv.innerHTML = `
+                <div style="width: 100%; text-align: center; animation: fadeIn 0.3s ease;">
+                    <p style="color: var(--primary-blue); font-weight: 600; margin-bottom: 10px; font-size: 14px;">
+                        <i class="fas fa-flag-checkered"></i> Task is completed!
+                    </p>
+                    <button class="btn-hire" style="width: 100%; font-family: inherit;" onclick="showRating(${id})">Rate Freelancer</button>
+                </div>
+            `;
+        }
+
+        function cancelHire(id) {
+            const actionsDiv = document.getElementById(`actions-${id}`);
+            actionsDiv.innerHTML = `
+                <a href="#" class="btn-view">View Profile</a>
+                <button class="btn-hire" style="font-family: inherit;" onclick="hireFreelancer(${id})">Hire Me</button>
+            `;
+        }
+
+        function showRating(id) {
+            const actionsDiv = document.getElementById(`actions-${id}`);
+            actionsDiv.innerHTML = `
+                <div style="width: 100%; text-align: center; animation: fadeIn 0.3s ease;">
+                    <p style="color: var(--dark-blue); font-weight: 600; margin-bottom: 10px; font-size: 14px;">
+                        Rate the completed task
+                    </p>
+                    <div style="color: #ffc107; font-size: 24px; margin-bottom: 15px; cursor: pointer; display: flex; justify-content: center; gap: 5px;">
+                        <i class="far fa-star star-rate" onclick="submitRating(${id}, 1)" onmouseover="hoverStars(${id}, 1)" onmouseout="resetStars(${id})"></i>
+                        <i class="far fa-star star-rate" onclick="submitRating(${id}, 2)" onmouseover="hoverStars(${id}, 2)" onmouseout="resetStars(${id})"></i>
+                        <i class="far fa-star star-rate" onclick="submitRating(${id}, 3)" onmouseover="hoverStars(${id}, 3)" onmouseout="resetStars(${id})"></i>
+                        <i class="far fa-star star-rate" onclick="submitRating(${id}, 4)" onmouseover="hoverStars(${id}, 4)" onmouseout="resetStars(${id})"></i>
+                        <i class="far fa-star star-rate" onclick="submitRating(${id}, 5)" onmouseover="hoverStars(${id}, 5)" onmouseout="resetStars(${id})"></i>
+                    </div>
+                    <button class="btn-view" style="width: 100%; font-family: inherit;" onclick="cancelHire(${id})">Cancel Rating</button>
+                </div>
+            `;
+        }
+
+        function hoverStars(id, rating) {
+            const actionsDiv = document.getElementById(`actions-${id}`);
+            const stars = actionsDiv.querySelectorAll('.star-rate');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.remove('far');
+                    star.classList.add('fas');
+                } else {
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                }
+            });
+        }
+
+        function resetStars(id) {
+            const actionsDiv = document.getElementById(`actions-${id}`);
+            const stars = actionsDiv.querySelectorAll('.star-rate');
+            stars.forEach((star) => {
+                star.classList.remove('fas');
+                star.classList.add('far');
+            });
+        }
+
+        function submitRating(id, rating) {
+            const actionsDiv = document.getElementById(`actions-${id}`);
+            actionsDiv.innerHTML = `
+                <div style="width: 100%; text-align: center; animation: fadeIn 0.3s ease;">
+                    <p style="color: #28a745; font-weight: 600; margin-bottom: 10px; font-size: 14px;">
+                        <i class="fas fa-check-circle"></i> Rated ${rating} stars! Thank you.
+                    </p>
+                    <button class="btn-view" style="width: 100%; font-family: inherit;" onclick="cancelHire(${id})">Back to Profile</button>
+                </div>
+            `;
+        }
 
         // Initial render
         renderFreelancers(freelancers);
